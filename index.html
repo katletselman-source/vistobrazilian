@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Documents</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        background: #f6f6f6;
+        margin-bottom: 12px;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      a {
+        color: #333;
+        font-size: 18px;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>My Documents</h1>
+    <p>All PDF files in this repository:</p>
+
+    <ul id="fileList">
+      Loading...
+    </ul>
+
+    <script>
+      const username = "katletselman-source"; // <-- change this
+      const repo = "vistobrazilian"; // <-- change this
+      const branch = "main";
+
+      async function fetchFiles(path = "") {
+        const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}?ref=${branch}`;
+        const response = await fetch(url);
+        const files = await response.json();
+
+        for (const file of files) {
+          if (
+            file.type === "file" &&
+            file.name.toLowerCase().endsWith(".pdf")
+          ) {
+            addFile(file.path);
+          }
+          if (file.type === "dir") {
+            await fetchFiles(file.path);
+          }
+        }
+      }
+
+      function addFile(path) {
+        const list = document.getElementById("fileList");
+        if (list.innerHTML === "Loading...") list.innerHTML = "";
+
+        const li = document.createElement("li");
+        const link = document.createElement("a");
+
+        link.href = path;
+        link.target = "_blank";
+        link.innerText = path;
+
+        li.appendChild(link);
+        list.appendChild(li);
+      }
+
+      fetchFiles();
+    </script>
+  </body>
+</html>
